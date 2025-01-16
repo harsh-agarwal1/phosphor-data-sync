@@ -158,7 +158,13 @@ sdbusplus::async::task<> Manager::monitorDataToSync(
 sdbusplus::async::task<> Manager::monitorTimerToSync(
     [[maybe_unused]] const config::DataSyncConfig& dataSyncCfg)
 {
-    // TODO Create timer events to monitor data for sync
+    while (!_ctx.stop_requested())
+    {
+        co_await sdbusplus::async::sleep_for(
+            _ctx, std::chrono::seconds(dataSyncCfg._periodicityInSec.value()));
+        // Call rsync Wrapper
+        syncData(dataSyncCfg);
+    }
     co_return;
 }
 
